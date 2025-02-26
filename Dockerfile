@@ -1,7 +1,7 @@
 ARG DEBIAN_VERSION=bullseye-slim
 ARG BASEDEV_VERSION=v0.25.0
 
-FROM debian:${DEBIAN_VERSION AS chktex
+FROM debian:$DEBIAN_VERSION AS chktex
 ARG CHKTEX_VERSION=1.7.6
 WORKDIR /tmp/workdir
 RUN apt-get update -y && \
@@ -39,16 +39,16 @@ RUN apt-get update -y && \
     tar -xz --strip-components=1 && \
     export TEXLIVE_INSTALL_NO_CONTEXT_CACHE=1 && \
     export TEXLIVE_INSTALL_NO_WELCOME=1 && \
-    printf "selected_scheme $SCHEME\ninstopt_letter 0\ntlpdbopt_autobackup 0\ntlpdbopt_desktop_integration 0\ntlpdbopt_file_assocs 0\ntlpdbopt_install_docfiles ${DOCFILES\ntlpdbopt_install_srcfiles ${SRCFILES" > profile.txt && \
+    printf "selected_scheme $SCHEME\ninstopt_letter 0\ntlpdbopt_autobackup 0\ntlpdbopt_desktop_integration 0\ntlpdbopt_file_assocs 0\ntlpdbopt_install_docfiles $DOCFILES\ntlpdbopt_install_srcfiles $SRCFILES" > profile.txt && \
     perl install-tl -profile profile.txt --location $TEXLIVE_MIRROR && \
     # Cleanup
     cd && \
     apt-get clean autoclean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/{apt,dpkg,cache,log/ /tmp/texlive /usr/local/texlive/${TEXLIVE_VERSION/*.log
-ENV PATH ${PATH:\
-/usr/local/texlive/${TEXLIVE_VERSION/bin/x86_64-linux:\
-/usr/local/texlive/${TEXLIVE_VERSION/bin/aarch64-linux
+    rm -rf /var/lib/apt,dpkg,cache,log/ /tmp/texlive /usr/local/texlive/$TEXLIVE_VERSION/*.log
+ENV PATH $PATH:\
+/usr/local/texlive/$TEXLIVE_VERSION/bin/x86_64-linux:\
+/usr/local/texlive/$TEXLIVE_VERSION/bin/aarch64-linux
 WORKDIR /workspace
 # Latexindent dependencies
 RUN apt-get update -y && \
@@ -62,11 +62,11 @@ RUN apt-get update -y && \
     apt-get remove -y cpanminus make gcc libc6-dev && \
     apt-get clean autoclean && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/{apt,dpkg,cache,log/
+    rm -rf /var/lib/apt,dpkg,cache,log/
 RUN tlmgr install latexindent latexmk && \
     texhash && \
-    rm /usr/local/texlive/${TEXLIVE_VERSION/texmf-var/web2c/*.log && \
-    rm /usr/local/texlive/${TEXLIVE_VERSION/tlpkg/texlive.tlpdb.main.*
+    rm /usr/local/texlive/$TEXLIVE_VERSION/texmf-var/web2c/*.log && \
+    rm /usr/local/texlive/$TEXLIVE_VERSION/tlpkg/texlive.tlpdb.main.*
 COPY --from=chktex /tmp/chktex /usr/local/bin/chktex
 COPY shell/.zshrc-specific shell/.welcome.sh /root/
 # Verify binaries work and have the right permissions
