@@ -1,17 +1,15 @@
 ARG DEBIAN_VERSION=bullseye-slim
 ARG BASEDEV_VERSION=v0.25.0
 
-FROM qmcgaw/basedevcontainer:$BASEDEV_VERSION-debian
-ARG BUILD_DATE
-ARG COMMIT
-ARG VERSION=local
-LABEL \
-    org.opencontainers.image.authors="quentin.mcgaw@gmail.com" \
-    org.opencontainers.image.created=$BUILD_DATE \
-    org.opencontainers.image.version=$VERSION \
-    org.opencontainers.image.revision=$COMMIT \
-    org.opencontainers.image.url="https://github.com/qdm12/latexdevcontainer" \
-    org.opencontainers.image.documentation="https://github.com/qdm12/latexdevcontainer" \
-    org.opencontainers.image.source="https://github.com/qdm12/latexdevcontainer" \
-    org.opencontainers.image.title="Latex Dev container Alpine" \
-    org.opencontainers.image.description="Latex development container for Visual Studio Code Remote Containers development"
+FROM debian:$DEBIAN_VERSION AS chktex
+ARG CHKTEX_VERSION=1.7.6
+WORKDIR /tmp/workdir
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends g++ make wget
+RUN echo $CHKTEX_VERSION
+RUN wget -qO- http://download.savannah.gnu.org/releases/chktex/chktex-$CHKTEX_VERSION.tar.gz | \
+    tar -xz --strip-components=1
+RUN ./configure && \
+    make && \
+    mv chktex /tmp && \
+    rm -r *
